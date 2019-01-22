@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace STATISTIKA_UPLOUD
@@ -57,6 +58,44 @@ namespace STATISTIKA_UPLOUD
             }
             
         }
-       
+        
+        public static bool WriteToTxt(string path, Vyrobok records)
+        {
+            string txt = string.Format("{0};{1};{2};{3};{4};{5};{6};{7};{8};{9};{10};{11};{12};{13};{14};{15};{16};{17};{18};{19};{20};{21};{22};{23};{24};{25}",
+                    records.poslany, records.datum, records.objednavka, records.index_okna, records.specialny_znak, records.pin1, records.pin2, records.pin3, records.vtok1, records.vtok2, records.vtok3, records.vtok4,
+                    records.lista, records.celkomOK, records.celkomNOK, records.farba_odtien, records.nazov_chyby, records.datamatrix_vytlaceny, records.datamatrix_precitany, records.vyroba_start, records.vyroba_koniec,
+                    records.vyrobene_ks_palety, records.vyrobene_ks_okna_OK, records.vyrobene_ks_okna_NOK, records.meno, records.priezvisko);
+            try { 
+                if (File.Exists(path))
+                {
+                    string tempfile = Path.GetTempFileName();
+                    using (var writer = new StreamWriter(tempfile))
+                    using (var reader = new StreamReader(path))
+                    {
+                        writer.WriteLine(reader.ReadLine());
+                        writer.WriteLine(txt);
+                        while (!reader.EndOfStream)
+                            writer.WriteLine(reader.ReadLine());
+                    }
+                    File.Copy(tempfile, path, true);
+                }
+                else
+                {
+                    using (var file = File.Create(path))
+                    using (StreamWriter writer = new StreamWriter(file))
+                    {
+                        writer.WriteLine(";DATUM;OBJEDNAVKA;INDEX OKNA;SPEC. ZNAK;PIN1;PIN2;PIN3;VTOK1;VTOK2;VTOK3;VTOK4;LISTA;OK;NOK;FARBA;NAZOV CHYBY;DATAMATRIX VYT.;DATAMATRIX PREC.;VYROBA START;VYROBA KONIEC;VYROBENE KS PALETY;VYROBENE OKNA OK;VYROBENE OKNA NOK;MENO;PRIEZVISKO");
+                        writer.WriteLine(txt);
+                    }
+                   
+
+                }
+                return true; 
+            }catch(Exception e )
+            {
+                Console.WriteLine(e.Message);
+                return false; 
+            }
+        }
     }
 }
