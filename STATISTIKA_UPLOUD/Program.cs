@@ -13,6 +13,7 @@ namespace STATISTIKA_UPLOUD
     {
 
         private static Vyrobok records;
+        private static bool update_all = true;
         private static Timer aTimer;
         static void Main(string[] args)
         {
@@ -22,7 +23,7 @@ namespace STATISTIKA_UPLOUD
             string dateTimeString = dateTime.ToString("yyyy-MM-dd HH:mm");
             Console.WriteLine(dateTimeString);
             string connectionString = "datasource=127.0.0.1;port=3306;username=root;password=;database=statistika;";
-
+            string path = @"C:\Users\SKVARA\Desktop\statistika\statistika.csv";
             records = new Vyrobok
             {
                 datum = dateTimeString,
@@ -53,11 +54,7 @@ namespace STATISTIKA_UPLOUD
             };
 
             aTimer = new Timer(1000);
-            // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += OnTimedEvent;
-            
-            
-
             if (Funkcie.UploudDb(connectionString, records))
             {
 
@@ -65,20 +62,25 @@ namespace STATISTIKA_UPLOUD
             }
             else
             {
+                   
                 records.poslany = false;
+                update_all = false;
             }
-            if (!Funkcie.WriteToTxt(@"C:\Users\SKVARA\Desktop\statistika\statistika.csv", records)) {
-                     aTimer.Enabled = true;
-            }
-        
+                if (!Funkcie.WriteToTxt(path, records))
+                {
+                    aTimer.Enabled = true;
+                }
+            
                 
+                Funkcie.UpdateDb(connectionString,path);
+
+            Funkcie.DeleteInTxt(path);
             Console.ReadKey();
 
         }
         private static void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
-                              e.SignalTime);
+            
             if (Funkcie.WriteToTxt(@"C:\Users\SKVARA\Desktop\statistika\statistika.csv", records ))
             {
                 aTimer.Enabled = false;
