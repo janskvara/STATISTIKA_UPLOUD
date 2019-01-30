@@ -206,5 +206,26 @@ namespace STATISTIKA_UPLOUD
             {
             }
         }
+
+        public static string ConverterStringPLC(byte[] retazec_from_plc,int codepage = 1250)
+        {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            if (retazec_from_plc.Length > 2)
+            {
+                byte[] pomocna = new byte[retazec_from_plc.Length - 2];
+                for (int k = 0; k < retazec_from_plc.Length - 2; k++)
+                {
+                    pomocna[k] = retazec_from_plc[k + 2];
+                }
+                string result = Encoding.GetEncoding(codepage).GetString(pomocna);
+                return result;
+
+            }
+            else
+            {
+                return null;
+            }
+
+        }
     }
 }
